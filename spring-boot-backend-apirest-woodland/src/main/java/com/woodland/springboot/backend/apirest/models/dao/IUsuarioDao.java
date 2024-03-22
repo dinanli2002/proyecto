@@ -1,6 +1,8 @@
 package com.woodland.springboot.backend.apirest.models.dao;
 
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -19,6 +21,10 @@ import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 		  @Query("select u from Usuario u where u.username=?1") 
 		  public Usuario findByUsername(String username);
 		 
-}
+		  
+		  @Query("SELECT ur.rol.nombre FROM UserRoles ur WHERE ur.user.id = ?1")
+		  public List<String> findRoleNamesByUserId(Long userId);
 
+		  
+	}
 

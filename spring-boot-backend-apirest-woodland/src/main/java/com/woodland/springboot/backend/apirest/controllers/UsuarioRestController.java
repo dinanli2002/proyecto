@@ -1,13 +1,20 @@
 package com.woodland.springboot.backend.apirest.controllers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.mapping.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 import com.woodland.springboot.backend.apirest.models.services.IUsuarioService;
 
-@CrossOrigin(origins = {"http://localhost:4200"})
+/*@CrossOrigin(origins = {"http://localhost:4200"})*/
 @RestController
 @RequestMapping("/api")
 public class UsuarioRestController {
@@ -37,7 +44,7 @@ public class UsuarioRestController {
 		return usuarioService.findAll();
 	}
 	
-	@GetMapping("/usuarios/{id}")
+	@GetMapping("/usuario/{id}")
 	public ResponseEntity<?> show(@PathVariable Long id) {
 		Usuario usuario =null ;
 		
@@ -59,7 +66,7 @@ public class UsuarioRestController {
 	}
 	 
 	
-	@PostMapping("/usuarios")
+	@PostMapping("/create/usuario")
 	
 	public ResponseEntity<?> create(@RequestBody Usuario usuario) {
 		Usuario usuarioNew  =null;
@@ -77,11 +84,10 @@ public class UsuarioRestController {
 		return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/usuarios/{id}")
+	@PutMapping("/update/usuario/{id}")
 
 	public ResponseEntity<?> update(@RequestBody Usuario usuario, @PathVariable Long id) {
 		Usuario usuarioActual= usuarioService.findById(id);
-		Usuario usuarioUpdated = null;
 		
 		
 		java.util.Map<String, Object> response = new HashMap<>();
@@ -105,13 +111,13 @@ public class UsuarioRestController {
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);	
 		}
-		response.put("mensaje", "El usuario ha sido creado con éxito");
-		response.put("usuario", usuarioUpdated);
+		response.put("mensaje", "El usuario ha sido actualizado con éxito");
+		response.put("usuario", usuarioActual);
 		return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	 
 	
-	@DeleteMapping("/usuarios/{id}")
+	@DeleteMapping("/delete/usuario/{id}")
 	
 		public ResponseEntity<?> delete(@PathVariable Long id) {
 		java.util.Map<String, Object> response = new HashMap<>();
@@ -140,8 +146,10 @@ public class UsuarioRestController {
 	
 	
 	@PostMapping("/usuarios/login")
-	public ResponseEntity<?> login(String username, String password) {
+	public ResponseEntity<?> login(@RequestParam String username,@RequestParam String password) {
 	    java.util.Map<String, Object> response = new HashMap<>();
+	    
+	    System.out.println(username+ password);
 	    try {
 	    	
 	        Usuario usuario = usuarioService.findByUsername(username);
@@ -163,11 +171,37 @@ public class UsuarioRestController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	    }
 	}
+	
+	@GetMapping("/usuario/info/{username}")
+	@Transactional(readOnly = true)
+	public ResponseEntity<?> loadUserByUsername(@PathVariable String username) {
+	    UserDetails userDetails;
+	    try {
+	        userDetails = usuarioService.loadUserByUsername(username);
+	        // Obtener los roles del usuario
+	        Collection<? extends GrantedAuthority> roles = userDetails.getAuthorities();
+	        // Convierte los roles a una lista de cadenas para facilitar el manejo
+	        List<String> rolesList = roles.stream()
+	                .map(GrantedAuthority::getAuthority)
+	                .collect(Collectors.toList());
+	        
+	        // Crear un mapa para almacenar la información del usuario y sus roles
+	        java.util.Map<String, Object> userInfo = new HashMap<>();
+	        userInfo.put("username", userDetails.getUsername());
+	        userInfo.put("roles", rolesList);
+	        
+	        // Devolver el mapa como el cuerpo de la respuesta
+	        return ResponseEntity.ok(userInfo);
+	    } catch (UsernameNotFoundException e) {
+	        return ResponseEntity.notFound().build();
+	    }
+	}
 
+	}
 	 
 	
 	
 	
 
 		
-	}
+	
