@@ -14,7 +14,11 @@ public interface IUsuarioService {
 	
 	public void delete (Long id);
 	
-	 public Usuario findByUsername(String username); 
+	 public Usuario findByUsername(String username);
+
+	public List<String> findRolesById(Long id); 
+	
+	public List<Long> findKidsById(Long id);
 }
 
 

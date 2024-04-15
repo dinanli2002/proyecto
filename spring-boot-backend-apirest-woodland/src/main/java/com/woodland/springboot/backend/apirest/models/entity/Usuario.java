@@ -2,13 +2,17 @@ package com.woodland.springboot.backend.apirest.models.entity;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-import jakarta.persistence.Table;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
 @Table(name="usuarios")
@@ -30,6 +34,9 @@ public class Usuario implements Serializable{
 	@Column (nullable=false)
 	private int monedas;
 	
+	@Column(nullable = false)
+    @ColumnDefault("true")
+    private boolean enabled;
 
 	
 	/**
@@ -96,8 +103,12 @@ public class Usuario implements Serializable{
 	public void setMonedas(int monedas) {
 		this.monedas = monedas;
 	}
+	
+	
 
-
+	public Boolean getEnabled() {
+		return enabled;
+	}
 
 
 

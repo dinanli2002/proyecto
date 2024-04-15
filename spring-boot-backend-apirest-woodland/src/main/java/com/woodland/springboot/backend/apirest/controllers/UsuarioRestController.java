@@ -23,8 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 import com.woodland.springboot.backend.apirest.models.services.IUsuarioService;
-
-@CrossOrigin(origins = {"http://localhost:4200"})
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+/*@CrossOrigin(origins = {"http://localhost:4200"})*/
 @RestController
 @RequestMapping("/api")
 public class UsuarioRestController {
@@ -34,13 +35,30 @@ public class UsuarioRestController {
 	
 	@GetMapping("/usuarios")
 	public List<Usuario> index(){
+		
+		System.out.println("hola");
+		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		    // Imprimir los roles del usuario actual en la consola
+		    System.out.println("Roles del usuario: " + authentication.getAuthorities());
 		return usuarioService.findAll();
 	}
+	
+	
+	
 	
 	@GetMapping("/usuario/{id}")
 	public ResponseEntity<?> show(@PathVariable Long id) {
 		Usuario usuario =null ;
 		
+		
+		System.out.println("hola");
+		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		 
+		    // Imprimir los roles del usuario actual en la consola
+		    System.out.println(authentication.getAuthorities());
+		    System.out.println("adios");
+		    
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {usuario = usuarioService.findById(id);} 
 		
@@ -139,8 +157,10 @@ public class UsuarioRestController {
 	
 	
 	@PostMapping("/usuarios/login")
-	public ResponseEntity<?> login(String username, String password) {
+	public ResponseEntity<?> login(@RequestParam String username,@RequestParam String password) {
 	    java.util.Map<String, Object> response = new HashMap<>();
+	    
+	    System.out.println(username+ password);
 	    try {
 	    	
 	        Usuario usuario = usuarioService.findByUsername(username);
