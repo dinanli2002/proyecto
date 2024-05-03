@@ -19,6 +19,13 @@ public interface IUsuarioService {
 	public List<String> findRolesById(Long id); 
 	
 	public List<Long> findKidsById(Long id);
+	
+	public Usuario createKid(Usuario kid,int idTutor);
+	
+	public Usuario createTutor(Usuario usuario);
+	
+	
+	
 }
 
 

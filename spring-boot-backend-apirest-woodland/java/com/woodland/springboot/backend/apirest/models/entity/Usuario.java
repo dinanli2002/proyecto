@@ -32,7 +32,8 @@ public class Usuario implements Serializable{
 	private String email;
 	
 	@Column (nullable=false)
-	private int monedas;
+	@ColumnDefault("0")
+	private Long monedas;
 	
 	@Column(nullable = false)
     @ColumnDefault("true")
@@ -94,13 +95,13 @@ public class Usuario implements Serializable{
 
 
 
-	public int getMonedas() {
+	public Long getMonedas() {
 		return monedas;
 	}
 
 
 
-	public void setMonedas(int monedas) {
+	public void setMonedas(Long monedas) {
 		this.monedas = monedas;
 	}
 	
@@ -108,6 +109,10 @@ public class Usuario implements Serializable{
 
 	public Boolean getEnabled() {
 		return enabled;
+	}
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled =enabled;
 	}
 
 

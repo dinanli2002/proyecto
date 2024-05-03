@@ -28,10 +28,10 @@ public class InfoAdicionalToken implements TokenEnhancer {
         Map<String, Object> info = new HashMap<>();
 
         
-        
-        info.put("nombre:", usuario.getUsername());
-        info.put("email:", usuario.getEmail());
-        info.put("monedas:", usuario.getMonedas());
+        info.put("id",usuario.getId().toString());
+        info.put("nombre", usuario.getUsername());
+        info.put("email", usuario.getEmail());
+        info.put("monedas", usuario.getMonedas().toString());
         info.put("kids", usuarioService.findKidsById(usuario.getId()));
         
         

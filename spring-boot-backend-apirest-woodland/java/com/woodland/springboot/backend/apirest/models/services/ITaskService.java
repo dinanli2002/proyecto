@@ -13,4 +13,10 @@ public interface ITaskService {
     public Task saveTask(Task task);
 
     public void deleteTask(Long id);
+    
+    public List<Task> findTasksByUserIdKid(Long id);
+    
+    public List<Task> findTasksByUserTutorId(Long id);
+
+	Task createTask(Task task, int idTutor);
 }
