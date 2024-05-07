@@ -18,5 +18,5 @@ public interface ITaskService {
     
     public List<Task> findTasksByUserTutorId(Long id);
 
-	Task createTask(Task task, int idTutor);
+	public Task createTask(Task task, int idTutor, int idKid);
 }

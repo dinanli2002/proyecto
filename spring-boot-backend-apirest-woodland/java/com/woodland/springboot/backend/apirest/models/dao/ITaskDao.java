@@ -28,8 +28,8 @@ public interface ITaskDao extends CrudRepository<Task, Long> {
 
 	 @Transactional
 	 @Modifying
-	 @Query(value = "INSERT INTO user_tasks (id_tutor, id_user) VALUES (?1, ?2)", nativeQuery = true)
-	void insertTaskKid(int idTutor, int kidId);
+	 @Query(value = "INSERT INTO user_tasks (id_task, id_tutor, id_user) VALUES (?1, ?2, ?3)", nativeQuery = true)
+	void insertTaskKid(int idTask, int idTutor, int kidId);
 
 
  

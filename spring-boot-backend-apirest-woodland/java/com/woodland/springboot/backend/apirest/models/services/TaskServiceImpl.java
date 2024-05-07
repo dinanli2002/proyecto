@@ -1,6 +1,7 @@
 package com.woodland.springboot.backend.apirest.models.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +63,45 @@ public class TaskServiceImpl implements ITaskService {
 	 }
 
 	@Override
-	public Task createTask(Task task, int idTutor) {
-		// TODO Auto-generated method stub
-		return null;
+	public Task createTask(Task task, int idTutor, int idKid) {
+		
+		
+		try {
+	        // Verificar si el nombre de usuario ya existe
+			Optional<Task> existingTask;
+	        existingTask= taskDao.findById(task.getId());
+	        if (existingTask != null) {
+	            throw new ServiceException("La tarea ya existe de usuario ya está en uso");
+	        }
+
+	        
+
+	        // Guarda el usuario en la base de datos
+	        Task newTask = taskDao.save(task);
+
+	        // Inserta el rol correspondiente al usuario
+	        
+	        taskDao.insertTaskKid(newTask.getId().intValue(),idTutor, idKid);
+	       
+
+	        // Crea la relación entre el tutor y el usuario kid
+	      
+
+	        return newTask;
+
+	    } catch (DataAccessException e) {
+	        // Captura excepciones específicas de acceso a datos, como problemas de conexión, errores SQL, etc.
+	        throw new ServiceException("Error al acceder a la base de datos al crear la tarea", e);
+	    } catch (ServiceException e) {
+	        // Captura excepciones específicas del servicio, como nombre de usuario o correo electrónico ya en uso
+	        throw e;
+	    } catch (Exception e) {
+	        // Captura otras excepciones no controladas
+	        throw new ServiceException("Error al crear la tarea", e);
+	    }
 	}
+
+	
 
 	 
 		/*
