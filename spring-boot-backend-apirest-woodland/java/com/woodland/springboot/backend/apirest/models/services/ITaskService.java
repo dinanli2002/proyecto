@@ -19,4 +19,9 @@ public interface ITaskService {
     public List<Task> findTasksByUserTutorId(Long id);
 
 	public Task createTask(Task task, int idTutor, int idKid);
+	
+	
+	
+	
+	
 }

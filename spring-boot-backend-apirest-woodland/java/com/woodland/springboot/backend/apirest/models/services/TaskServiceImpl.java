@@ -68,12 +68,7 @@ public class TaskServiceImpl implements ITaskService {
 		
 		try {
 	        // Verificar si el nombre de usuario ya existe
-			Optional<Task> existingTask;
-	        existingTask= taskDao.findById(task.getId());
-	        if (existingTask != null) {
-	            throw new ServiceException("La tarea ya existe de usuario ya está en uso");
-	        }
-
+			
 	        
 
 	        // Guarda el usuario en la base de datos

@@ -1,5 +1,6 @@
 package com.woodland.springboot.backend.apirest.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,12 +23,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.woodland.springboot.backend.apirest.models.entity.JwtPayload;
-import com.woodland.springboot.backend.apirest.models.entity.Task;
-import com.woodland.springboot.backend.apirest.models.entity.UserTasks;
+import com.woodland.springboot.backend.apirest.models.entity.Rewards;
+
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 
-import com.woodland.springboot.backend.apirest.models.services.ITaskService;
-import com.woodland.springboot.backend.apirest.models.services.IUserTasksService;
+import com.woodland.springboot.backend.apirest.models.services.IRewardsService;
+
 import com.woodland.springboot.backend.apirest.models.services.IUsuarioService;
 import com.woodland.springboot.backend.apirest.models.services.JWTService;
 
@@ -38,32 +39,32 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 /*@CrossOrigin(origins = {"http://localhost:4200"})*/
 @RestController
 @RequestMapping("/api")
-public class TaskRestController {
+public class RewardsRestController {
 
 	@Autowired
-	private ITaskService taskService;
-
-	@Autowired
-	private IUserTasksService userTasksService;
+	private IRewardsService rewardsService;
 
 	@Autowired
 	private IUsuarioService usuarioService;
 
 	@Autowired
 	private JWTService jwtService;
+	
+	
+	
 
-	@GetMapping("/tasks")
-	public List<Task> index() {
+	@GetMapping("/rewards")
+	public List<Rewards> index() {
 
 		// Authentication authentication =
 		// SecurityContextHolder.getContext().getAuthentication();
 
-		return taskService.findAllTasks();
+		return rewardsService.findAllRewards();
 	}
 
-	@GetMapping("/task/{id}")
+	@GetMapping("/rewards/{id}")
 	public ResponseEntity<?> show(@PathVariable Long id) {
-		Task task = null;
+		Rewards rewards = null;
 
 		// Authentication authentication =
 		// SecurityContextHolder.getContext().getAuthentication();
@@ -73,7 +74,7 @@ public class TaskRestController {
 
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {
-			task = taskService.findTaskById(id);
+			rewards = rewardsService.findRewardById(id);
 		}
 
 		catch (DataAccessException e) {
@@ -82,43 +83,39 @@ public class TaskRestController {
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		if (task == null) {
+		if (rewards == null) {
 			response.put("mensaje", "El usuario ID:".concat(id.toString().concat("No existe en la base de datos")));
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<Task>(task, HttpStatus.OK);
+		return new ResponseEntity<Rewards>(rewards, HttpStatus.OK);
 	}
 
-	@PostMapping("/task/create/{idKid}")
-	public ResponseEntity<?> create(@RequestBody Task task, @PathVariable Long idKid) {
-		Task taskNew = null;
-		UserTasks userTasks = null;
-		UserTasks userTasksNew = null;
+	@PostMapping("/rewards/create/{idKid}")
+	public ResponseEntity<?> create(@RequestBody Rewards rewards, @PathVariable Long idKid) {
+		Rewards rewardsNew = null;
+		
 
-		Task task2 = null;
+		Rewards rewards2 = null;
 		java.util.Map<String, Object> response = new HashMap<>();
 
-		OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) SecurityContextHolder.getContext()
-				.getAuthentication().getDetails();
-		String jwtToken = details.getTokenValue();
-
-		// Decodificar el JWT utilizando JWTService
-		JwtPayload decodedJwt;
-
-		decodedJwt = jwtService.jwtDecoder(jwtToken);
+	
+	
 
 		try {
-			Task taskRequest = new Task();
-			taskRequest.setId(null);
-			taskRequest.setDescripcion(task.getDescripcion());
-			taskRequest.setMonedas(task.getMonedas());
-			taskRequest.setNombre(task.getNombre());
-
+			Rewards rewardsRequest = new Rewards();
 			Usuario kid = usuarioService.findById(idKid);
+			
+			rewardsRequest.setId(null);
+			rewardsRequest.setName(rewards.getName());
+			rewardsRequest.setDescription(rewards.getDescription());
+			rewardsRequest.setPrice(rewards.getPrice());
+			rewardsRequest.setUrl_image(null);
+			rewardsRequest.setUser(kid);
+			
+			rewards2=rewardsService.saveReward(rewardsRequest);
+			
 
-			int idTutor = decodedJwt.getId();
 
-			task2 = taskService.createTask(taskRequest, idTutor, kid.getId().intValue());
 
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar el insert en la base de datos");
@@ -126,75 +123,87 @@ public class TaskRestController {
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		response.put("mensaje", "La tarea ha sido creado con éxito");
-		response.put("task", task2);
+		response.put("rewards", rewards2);
 
 		return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	@PutMapping("/update/task/{id}")
+	@PutMapping("/update/rewards/{id}")
 
-	public ResponseEntity<?> update(@RequestBody Task task, @PathVariable Long id) {
-		Task taskActual = taskService.findTaskById(id);
+	public ResponseEntity<?> update(@RequestBody Rewards rewards, @PathVariable Long idReward) {
+		Rewards rewardsActual = rewardsService.findRewardById(idReward);
 
 		java.util.Map<String, Object> response = new HashMap<>();
 
-		if (taskActual == null) {
-			response.put("mensaje", "Error: no se pudo editar, la task ID: "
-					.concat(id.toString().concat(" no existe en la base de datos")));
+		if (rewardsActual == null) {
+			response.put("mensaje", "Error: no se pudo editar, la rewards ID: "
+					.concat(idReward.toString().concat(" no existe en la base de datos")));
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		try {
 
-			taskActual.setNombre(task.getNombre());
-			taskActual.setDescripcion(task.getDescripcion());
-			taskActual.setMonedas(task.getMonedas());
+			rewardsActual.setName(rewards.getName());
+			rewardsActual.setDescription(rewards.getDescription());
+			rewardsActual.setPrice(rewards.getPrice());
 
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar al actualizar los datos en la base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		response.put("mensaje", "La tarea ha sido actualizada con éxito");
-		response.put("task", taskActual);
+		response.put("mensaje", "La recompensa ha sido actualizada con éxito");
+		response.put("rewards", rewardsActual);
 		return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 	}
+	
+	
+	
 
-	@PostMapping("/task/verificate/{id}")
-	public ResponseEntity<?> verificateTask(@PathVariable Long id) {
+	@PostMapping("/rewards/verificate/{idReward}")
+	public ResponseEntity<?> verificateRewards(@PathVariable Long idReward) {
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {
 
-			Task taskActual = taskService.findTaskById(id);
-			UserTasks userTasksActual = userTasksService.findByid(id);
+			Rewards rewardsActual = rewardsService.findRewardById(idReward);
+			
 
-			if (taskActual == null || userTasksActual == null) {
+			if (rewardsActual == null) {
 				response.put("mensaje", "Error: no se pudo encontrar, la tarea ID: "
-						.concat(id.toString().concat(" no existe en la base de datos")));
+						.concat(idReward.toString().concat(" no existe en la base de datos")));
 				return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 
-			Usuario userKid = userTasksActual.getUser();
-			int monedas = taskActual.getMonedas();
+			
+			int monedas = rewardsActual.getPrice();
+			
 
 			try {
 
-				taskService.deleteTask(id);
+				rewardsService.deleteReward(idReward);
 
-				userTasksService.giveTask(id);
+				if (rewardsActual.getUser().getMonedas()>= monedas) {
+					
+					rewardsActual.getUser().setMonedas(rewardsActual.getUser().getMonedas()-monedas);	
+				
+				}
+				else {
+					response.put("mensaje", "Error: no tienes suficientes monedas");
+					return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+				
 
-				Long monedasLong = (long) monedas;
+			
 
-				userKid.setMonedas(userKid.getMonedas() + monedasLong);
-
-				usuarioService.save(userKid);
+				usuarioService.save(rewardsActual.getUser());
+				
 
 			} catch (DataAccessException e) {
 				response.put("mensaje", "Error al darle la recompensa");
 				response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 				return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			response.put("mensaje", "La tarea ha sido completada con exito");
+			response.put("mensaje", "La recompensa ha sido entregada con exito");
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 
 		} catch (DataAccessException e) {
@@ -205,19 +214,15 @@ public class TaskRestController {
 
 	}
 
-	@GetMapping("/task/kid/{id}")
-	public ResponseEntity<?> showTaskByUserKidId(@PathVariable Long id) {
-		List<Task> tasks;
+	@GetMapping("/rewards/kid/{idKid}")
+	public ResponseEntity<?> showRewardsByUserKidId(@PathVariable Long idKid) {
+		List<Rewards> rewards;
 
-		// Authentication authentication =
-		// SecurityContextHolder.getContext().getAuthentication();
-
-		// Imprimir los roles del usuario actual en la consola
-		// System.out.println(authentication.getAuthorities());
-
+	
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {
-			tasks = taskService.findTasksByUserIdKid(id);
+			Usuario kid = usuarioService.findById(idKid);
+			rewards = rewardsService.findRewardsByUserIdKid(kid);
 		}
 
 		catch (DataAccessException e) {
@@ -226,17 +231,17 @@ public class TaskRestController {
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		if (tasks == null) {
-			response.put("mensaje", "El usuario ID:".concat(id.toString().concat("No existe en la base de datos")));
+		if (rewards == null) {
+			response.put("mensaje", "No existen tareas para este usuario");
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+		return new ResponseEntity<List<Rewards>>(rewards, HttpStatus.OK);
 	}
+	
 
-	@GetMapping("/task/tutor")
-	public ResponseEntity<?> showTaskByUserTutorId() {
-		List<Task> tasks;
-
+	@GetMapping("/rewards/tutor")
+	public ResponseEntity<?> showRewardsByUserTutorId() {
+		ArrayList<Rewards>rewards = new ArrayList<Rewards>();
 		OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) SecurityContextHolder.getContext()
 				.getAuthentication().getDetails();
 		String jwtToken = details.getTokenValue();
@@ -245,11 +250,28 @@ public class TaskRestController {
 		JwtPayload decodedJwt;
 
 		decodedJwt = jwtService.jwtDecoder(jwtToken);
+		
+		List<Integer>kidsId =decodedJwt.getKids();
+		ArrayList<Usuario>kids= new ArrayList<Usuario>();
+		
+		for(Integer kid: kidsId) {
+			Long kidId= kid.longValue();
+			
+			kids.add(usuarioService.findById(kidId));
+			
+		}
+		
+		
 
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {
-			Long id = (long) decodedJwt.getId();
-			tasks = taskService.findTasksByUserTutorId(id);
+	
+			for(Usuario kid: kids) {
+				
+				rewards.addAll(rewardsService.findRewardsByUserIdKid(kid));
+				
+			}
+			
 		}
 
 		catch (DataAccessException e) {
@@ -258,11 +280,7 @@ public class TaskRestController {
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		if (tasks == null) {
-			response.put("mensaje", "La tarea ese id:");
-			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+		return new ResponseEntity<List<Rewards>>(rewards, HttpStatus.OK);
 
 	}
 	

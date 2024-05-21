@@ -102,7 +102,7 @@ public class Usuario implements Serializable{
 
 
 	public void setMonedas(Long monedas) {
-		this.monedas = monedas;
+		this.monedas =  monedas;
 	}
 	
 	

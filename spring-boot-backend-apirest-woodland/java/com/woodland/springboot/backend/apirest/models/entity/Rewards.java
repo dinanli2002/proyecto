@@ -26,7 +26,7 @@ public class Rewards implements Serializable{
     private String description;
     
     @Column(nullable=false)
-    private double price;
+    private int price;
     
     @Column
     private String url_image;
@@ -63,11 +63,11 @@ public class Rewards implements Serializable{
         this.description = description;
     }
 
-    public double getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 

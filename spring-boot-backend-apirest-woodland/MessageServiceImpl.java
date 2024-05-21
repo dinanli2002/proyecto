@@ -43,7 +43,6 @@ public class MessageServiceImpl implements IMessageService{
 	public void deleteMessage(Long id) {
 		messagesDao.deleteById(id);
 	
-		
 	}
 	
 	
