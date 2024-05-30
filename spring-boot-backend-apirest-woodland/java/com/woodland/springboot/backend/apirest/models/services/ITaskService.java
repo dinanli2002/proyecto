@@ -3,6 +3,7 @@ package com.woodland.springboot.backend.apirest.models.services;
 import java.util.List;
 
 import com.woodland.springboot.backend.apirest.models.entity.Task;
+import com.woodland.springboot.backend.apirest.models.entity.UserTasks;
 
 public interface ITaskService {
 
@@ -19,6 +20,8 @@ public interface ITaskService {
     public List<Task> findTasksByUserTutorId(Long id);
 
 	public Task createTask(Task task, int idTutor, int idKid);
+
+	
 	
 	
 	

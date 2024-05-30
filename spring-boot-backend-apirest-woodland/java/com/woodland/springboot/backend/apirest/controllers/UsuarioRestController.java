@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.woodland.springboot.backend.apirest.auth.*;
 import com.woodland.springboot.backend.apirest.models.entity.JwtPayload;
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
+import com.woodland.springboot.backend.apirest.models.entity.UsuarioDTO;
 import com.woodland.springboot.backend.apirest.models.services.IUsuarioService;
 import com.woodland.springboot.backend.apirest.models.services.JWTService;
 import com.woodland.springboot.backend.apirest.models.services.JwtPayloadDeserializer;
@@ -164,8 +165,8 @@ public class UsuarioRestController {
 	}
 
 
-	@PutMapping("/update/usuario/{id}")
-	public ResponseEntity<?> update(@RequestBody Usuario usuario, @PathVariable Long id) {
+	@PutMapping("/update/usuario")
+	public ResponseEntity<?> update(@RequestBody UsuarioDTO usuario) {
 		 
 		java.util.Map<String, Object> response = new HashMap<>();
 		 OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) SecurityContextHolder.getContext().getAuthentication().getDetails();
@@ -180,24 +181,24 @@ public class UsuarioRestController {
 		     int idJwt = decodedJwt.getId();
 		       
 
-		     if(idJwt!=id && !decodedJwt.getKids().contains(id.intValue())) {
-		    	 response.put("mensaje", "Error: no se pudo editar, no tienes acceso al usuario con id: "+ id);
-			     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-		     }
+		   
 		
 		
-		Usuario usuarioActual = usuarioService.findById(id);
+		Usuario usuarioActual = usuarioService.findById(Long.valueOf(idJwt));
 	  
 
 	    if (usuarioActual == null) {
-	        response.put("mensaje", "Error: no se pudo editar, el usuario ID: " + id+ " no existe en la base de datos");
+	        response.put("mensaje", "Error: no se pudo editar, el usuario ID: " + idJwt+ " no existe en la base de datos");
 	        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	    }
 
 	    try {
 	        usuarioActual.setUsername(usuario.getUsername());
 	        usuarioActual.setEmail(usuario.getEmail());
-
+	        usuarioActual.setPassword(usuario.getPassword());
+	        
+	        usuarioActual.setPassword(passwordEncoder.encode(usuario.getPassword()));
+	        
 	        usuarioService.save(usuarioActual);
 			
 	        

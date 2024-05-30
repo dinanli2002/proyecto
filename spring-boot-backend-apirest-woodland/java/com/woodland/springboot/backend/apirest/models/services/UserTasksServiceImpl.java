@@ -28,15 +28,23 @@ public class UserTasksServiceImpl implements IUserTasksService{
 
 	@Override
 	public UserTasks findByid(Long id) {
-		// TODO Auto-generated method stub
+		
 		return userTasksDao.findById(id).orElse(null);
 	}
 	
 	
 	@Override
 	public void save(int idTask, int idTutor, int kidId ) {
-		// TODO Auto-generated method stub
+		
 		tasksDao.insertTaskKid(idTask, idTutor, kidId);
+	}
+
+	@Override
+	public void deleteTask(Long id, UserTasks userTasks) {
+		
+		userTasksDao.delete(userTasks);
+		tasksDao.deleteById(id);
+		
 	}
 	
 

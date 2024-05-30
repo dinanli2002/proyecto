@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.woodland.springboot.backend.apirest.models.entity.JwtPayload;
 import com.woodland.springboot.backend.apirest.models.entity.Task;
+import com.woodland.springboot.backend.apirest.models.entity.TaskDTO;
 import com.woodland.springboot.backend.apirest.models.entity.UserTasks;
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 
@@ -89,8 +90,8 @@ public class TaskRestController {
 		return new ResponseEntity<Task>(task, HttpStatus.OK);
 	}
 
-	@PostMapping("/task/create/{idKid}")
-	public ResponseEntity<?> create(@RequestBody Task task, @PathVariable Long idKid) {
+	@PostMapping("/task/create")
+	public ResponseEntity<?> create(@RequestBody TaskDTO task) {
 		Task taskNew = null;
 		UserTasks userTasks = null;
 		UserTasks userTasksNew = null;
@@ -114,7 +115,7 @@ public class TaskRestController {
 			taskRequest.setMonedas(task.getMonedas());
 			taskRequest.setNombre(task.getNombre());
 
-			Usuario kid = usuarioService.findById(idKid);
+			Usuario kid = usuarioService.findById(task.getIdKid());
 
 			int idTutor = decodedJwt.getId();
 
@@ -131,7 +132,7 @@ public class TaskRestController {
 		return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	@PutMapping("/update/task/{id}")
+	@PutMapping("/task/update/{id}")
 
 	public ResponseEntity<?> update(@RequestBody Task task, @PathVariable Long id) {
 		Task taskActual = taskService.findTaskById(id);
@@ -149,6 +150,7 @@ public class TaskRestController {
 			taskActual.setNombre(task.getNombre());
 			taskActual.setDescripcion(task.getDescripcion());
 			taskActual.setMonedas(task.getMonedas());
+			taskService.saveTask(taskActual);
 
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar al actualizar los datos en la base de datos");
@@ -160,12 +162,15 @@ public class TaskRestController {
 		return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	@PostMapping("/task/verificate/{id}")
-	public ResponseEntity<?> verificateTask(@PathVariable Long id) {
+	
+	
+	@PostMapping("/task/verificate")
+	public ResponseEntity<?> verificateTask(@RequestBody Long id) {
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {
 
 			Task taskActual = taskService.findTaskById(id);
+			
 			UserTasks userTasksActual = userTasksService.findByid(id);
 
 			if (taskActual == null || userTasksActual == null) {
@@ -182,6 +187,8 @@ public class TaskRestController {
 				taskService.deleteTask(id);
 
 				userTasksService.giveTask(id);
+				
+				
 
 				Long monedasLong = (long) monedas;
 
@@ -205,6 +212,53 @@ public class TaskRestController {
 
 	}
 
+	
+	
+	
+
+	@DeleteMapping("/task/delete/{idTask}")
+	public ResponseEntity<?> deleteTask(@PathVariable Long idTask) {
+		java.util.Map<String, Object> response = new HashMap<>();
+		try {
+
+			Task taskActual = taskService.findTaskById(idTask);
+			UserTasks userTasksActual = userTasksService.findByid(idTask);
+
+			if (taskActual == null || userTasksActual == null) {
+				response.put("mensaje", "Error: no se pudo encontrar, la tarea ID: "
+						.concat(idTask.toString().concat(" no existe en la base de datos")));
+				return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+			
+
+			try {
+
+				userTasksService.deleteTask(idTask, userTasksActual);
+				
+				
+
+			} 
+			catch (DataAccessException e) {
+				response.put("mensaje", "Error al eliminar 1");
+				response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+				return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			response.put("mensaje", "La tarea ha sido eliminada con exito");
+			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
+
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al eliminar");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	
+	
+	
+	
+	
 	@GetMapping("/task/kid/{id}")
 	public ResponseEntity<?> showTaskByUserKidId(@PathVariable Long id) {
 		List<Task> tasks;

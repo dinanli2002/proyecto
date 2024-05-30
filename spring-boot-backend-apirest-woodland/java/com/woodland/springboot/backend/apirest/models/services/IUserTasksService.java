@@ -8,7 +8,7 @@ public interface IUserTasksService {
 	
 	public void giveTask(Long id);
 
-	
+	public void deleteTask(Long id, UserTasks userTasks);
 
 	public void save(int idTask, int idTutor, int kidId);
 	

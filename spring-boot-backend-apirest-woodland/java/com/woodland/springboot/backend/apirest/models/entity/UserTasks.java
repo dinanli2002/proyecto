@@ -18,7 +18,7 @@ public class UserTasks implements Serializable{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id_task")
-    private Long id_task;
+    private Long idTask;
     
     @ManyToOne
     @JoinColumn(name="id_user", nullable=false)
@@ -41,7 +41,7 @@ public class UserTasks implements Serializable{
     
     public UserTasks(Long id_task, Usuario user, Usuario tutor) {
 		super();
-		this.id_task = id_task;
+		this.idTask = id_task;
 		this.user = user;
 		this.tutor = tutor;
 	}
@@ -49,11 +49,11 @@ public class UserTasks implements Serializable{
     
 
 	public Long getId_task() {
-        return id_task;
+        return idTask;
     }
 
     public void setId_task(Long id_task) {
-        this.id_task = id_task;
+        this.idTask = id_task;
     }
 
     public Usuario getUser() {

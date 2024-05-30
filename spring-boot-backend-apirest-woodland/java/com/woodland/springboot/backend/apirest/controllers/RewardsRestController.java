@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.woodland.springboot.backend.apirest.models.entity.JwtPayload;
 import com.woodland.springboot.backend.apirest.models.entity.Rewards;
-
+import com.woodland.springboot.backend.apirest.models.entity.RewardsDTO;
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 
 import com.woodland.springboot.backend.apirest.models.services.IRewardsService;
@@ -90,8 +90,8 @@ public class RewardsRestController {
 		return new ResponseEntity<Rewards>(rewards, HttpStatus.OK);
 	}
 
-	@PostMapping("/rewards/create/{idKid}")
-	public ResponseEntity<?> create(@RequestBody Rewards rewards, @PathVariable Long idKid) {
+	@PostMapping("/rewards/create")
+	public ResponseEntity<?> create(@RequestBody RewardsDTO rewards) {
 		Rewards rewardsNew = null;
 		
 
@@ -103,7 +103,7 @@ public class RewardsRestController {
 
 		try {
 			Rewards rewardsRequest = new Rewards();
-			Usuario kid = usuarioService.findById(idKid);
+			Usuario kid = usuarioService.findById(rewards.getIdKid());
 			
 			rewardsRequest.setId(null);
 			rewardsRequest.setName(rewards.getName());
@@ -160,8 +160,8 @@ public class RewardsRestController {
 	
 	
 
-	@PostMapping("/rewards/verificate/{idReward}")
-	public ResponseEntity<?> verificateRewards(@PathVariable Long idReward) {
+	@PostMapping("/rewards/verificate")
+	public ResponseEntity<?> verificateRewards(@RequestBody Long idReward) {
 		java.util.Map<String, Object> response = new HashMap<>();
 		try {
 
@@ -210,10 +210,38 @@ public class RewardsRestController {
 			response.put("mensaje", "Error al darle la recompensa");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			
 		}
 
 	}
+	
+	
+	
+	@DeleteMapping("/rewards/delete")
+	public ResponseEntity<?> deleteRewards(@RequestBody Long idReward) {
+		java.util.Map<String, Object> response = new HashMap<>();
+		try {
 
+			rewardsService.deleteReward(idReward);
+			
+
+			response.put("mensaje", "La recompensa ha sido eliminada con exito");
+			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.CREATED);
+
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al eliminar la recompensa");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<java.util.Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+
+	}
+	
+	
+	
+
+	
+	
 	@GetMapping("/rewards/kid/{idKid}")
 	public ResponseEntity<?> showRewardsByUserKidId(@PathVariable Long idKid) {
 		List<Rewards> rewards;
@@ -281,6 +309,8 @@ public class RewardsRestController {
 		}
 
 		return new ResponseEntity<List<Rewards>>(rewards, HttpStatus.OK);
+		
+		
 
 	}
 	

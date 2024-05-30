@@ -18,11 +18,11 @@ public interface ITaskDao extends CrudRepository<Task, Long> {
 
 
 
-	@Query("SELECT t FROM Task t JOIN UserTasks ut ON t.id = ut.id_task WHERE ut.user.id = :userId")
+	@Query("SELECT t FROM Task t JOIN UserTasks ut ON t.id = ut.idTask WHERE ut.user.id = :userId")
 	List<Task> findTasksByUserKidId(Long userId);
 
 	
-	@Query("SELECT t FROM Task t JOIN UserTasks ut ON t.id = ut.id_task WHERE ut.tutor.id = :tutorId")
+	@Query("SELECT t FROM Task t JOIN UserTasks ut ON t.id = ut.idTask WHERE ut.tutor.id = :tutorId")
 	List<Task> findTasksByUserTutorId(Long tutorId);
 
 

@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.woodland.springboot.backend.apirest.models.dao.ITaskDao;
+import com.woodland.springboot.backend.apirest.models.dao.IUserTasksDao;
 import com.woodland.springboot.backend.apirest.models.entity.Task;
+import com.woodland.springboot.backend.apirest.models.entity.UserTasks;
 import com.woodland.springboot.backend.apirest.models.entity.Usuario;
 
 @Service
@@ -19,6 +21,9 @@ public class TaskServiceImpl implements ITaskService {
     @Autowired
     private ITaskDao taskDao;
 
+    @Autowired
+    private IUserTasksDao userTaskDao;
+    
     @Override
     @Transactional(readOnly = true)
     public List<Task> findAllTasks() {
@@ -42,7 +47,10 @@ public class TaskServiceImpl implements ITaskService {
     @Override
     @Transactional
     public void deleteTask(Long id) {
+    	
+    	
         taskDao.deleteById(id);
+        
     }
 
 	
